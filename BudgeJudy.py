@@ -1,303 +1,134 @@
+import math
+import io
+import os
+import json
+import calendar
+import csv
 import openpyxl
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 from openpyxl import Workbook, load_workbook
 from datetime import date, datetime
+from pathlib import Path
+from csv import DictReader
+
+
 
 
 #### Stored Data ####
 
-# Transaction Descriptions #
-descriptions = {
+# Read in spending spreadsheet
+filepath = Path('Data') / 'PracticeCheckingSheet.xlsx'
+df = pd.read_excel(filepath)
 
-    "income": {"Income": ["TEND EXCHANGE", "ADVANTAGE WORK"]
-    },
+# Read in category descriptions of charges
+filepath = Path('Data') / 'category_descriptions.json'
+categories = json.loads(filepath.read_text())
 
-    "savings": {"Savings": []
-    },
-
-    "rent": {"Rent": []
-    },
-
-    "food": {
-        "Groceries": ["RALPH", "VON", "WHOLEFDS", "TRADER JOE", "PAM", \
-        "PAVIOLIONS", "STAR MARKET"],
-        "Restaurant": ["CAFE", "CURRY", "SUSHI", "BELLA", "BISTRO", \
-        "CUCINA", "TRATTORIA", "OSTERIA", "RESTAUR", "DOORDASH", "GRUBHUB",\
-        "UBEREAT", "CLOVER", "BURGER", "YELLOW DOOR", "STARBUCKS", "TAPIOCA EXPRESS",\
-        "KITCHEN", "DIRTY BIRDS", "CUISIN", "DOMINO\"S", "TACO", "PANDA EXPRESS",\
-        "PLATES", "COFFEE", "JUICE"]
-    },
-
-    "drink": {
-        "Counter": ["BEVERAGES AND MORE", "DISCOUNT WIN", "BEVERAGES", "LIQUOR"],
-        "Bar": ["PUB MKT", "BEL VINO", "BREW", "CLURICAUNE", "REFRESHMENT",\
-        "TIPSY CROW"]
-    },
-
-    "pharmacy": {"Pharmacy": ["CVS", "TARGET", "WALGREENS", "PHARM"]
-    },
-
-    "transportation": {
-        "Parking": ["PARKING"],
-        "Plane": ["JETBLUE", "DELTA"],
-        "Train": ["AMTRAK", "TRENITALIA"],
-        "Rideshare": ["UBER", "LYFT", "RIDEMOVI"]
-    }
-}
+# Rename columns
+new_columns = dict(zip(df.columns.values, df.iloc[0]))
+df = df.rename(columns = new_columns).iloc[3:]
 
 
-# Category Totals #
-totals = {
-
-    "income": {
-        "Income": 0,
-        "Total": 0
-    },
-
-    "savings": {
-        "Savings": 0,
-        "Total": 0
-    },
-
-    "rent": {
-        "Rent": 0,
-        "Total": 0
-    },
-
-    "food": {
-        "Groceries": 0,
-        "Restaurant": 0,
-        "Total": 0
-    },
-
-    "drink": {
-        "Counter": 0,
-        "Bar": 0,
-        "Total": 0
-    },
-
-    "pharmacy": {
-        "Pharmacy": 0,
-        "Total": 0
-    },
-
-    "transportation": {
-        "Parking": 0,
-        "Plane": 0,
-        "Train": 0,
-        "Rideshare": 0,
-        "Total": 0
-    },
-
-    "miscellaneous": {
-        "Miscellaneous": 0,
-        "Total": 0}
-}
 
 
-# Categories tracked by month
-bymonth_totals = {
-    "Income": 0, 
-    "Savings": 0, 
-    "Rent": 0, 
-    "Food": 0, 
-    "Drink": 0, 
-    "Pharmacy": 0, 
-    "Transportation": 0, 
-    "Miscellaneous": 0}
+#### Functions ####
 
-
-# Months and abbreviations #
-months={
-    "January": "jan", 
-    "February": "feb",
-    "March": "mar",
-    "April": "apr",
-    "May": "may",
-    "June": "jun",
-    "July": "jul",
-    "August": "aug",
-    "September": "sep",
-    "October": "oct",
-    "November": "nov",
-    "December": "dec"}
-
-
-# Converts number of month to name of month #
-def month_name(month):
-    names = {
-        "01": "January",
-        "02": "February",
-        "03": "March",
-        "04": "April",
-        "05": "May",
-        "06": "June",
-        "07": "July",
-        "08": "August",
-        "09": "September",
-        "10": "October",
-        "11": "November",
-        "12": "December",
-        }
-    return names[month] 
-
-
-# Records bymonthly totals into new sheet and reset totals #
-def record_bymonthly_totals():
-    this_month = dater(row)[0:2]
-    next_month = dater(row + 1)[0:2]
-
-    if this_month != next_month:
-        this_row = 20
-        col_number = 73
-
-        # write month name in bymonth chart
-        month_column = budget_months.index(this_month)
-        newsheet[chr(col_number + month_column) + str(this_row)] \
-            = month_name(this_month)
-        this_row += 1
-        
-        # write monthly totals in bymonth chart
-        for bymonth_total in list(bymonth_totals.values()):
-            newsheet[chr(col_number + month_column) + str(this_row)] \
-            = bymonth_total
-            this_row += 1
-
-        # reset monthly totals
-        for bymonth_total in list(bymonth_totals.keys()):
-            bymonth_totals[bymonth_total] = 0
-
-
-# Returns date without time #
-def dater(row):
-    day = sheet["A"+str(row)].value.strftime("%m/%d/%Y")
+# Returns date in MM-DD-YYYY format
+def dater(date):
+    day = datetime.strptime(str(date)[:10], "%Y-%m-%d")
     return day
 
+# Keep charges within entered date range
+def date_range(date):
+    start = pd.to_datetime(first_fiscal, format="%Y-%m-%d")
+    end = pd.to_datetime(last_fiscal, format="%Y-%m-%d")
+    this = pd.to_datetime(date, format="%Y-%m-%d")
+    return (end-this).days>=0 and (this-start).days>=0
 
-# If type is ATM returns ATM otherwise returns description #
-def typer(row):
-    if sheet["B"+str(row)].value == "ATM":
-        return "ATM"
-    else:
-        return sheet["D"+str(row)].value
-
-
-# Returns check number #
-def checker(row):
-    return sheet["C"+str(row)].value
-
-
-# Returns description if found, otherwise deemed miscellaneous #
-def descriptor(row):
-
-    date = sheet["A"+str(row)].value.strftime("%m/%d/%Y")
-    storecode = sheet["D"+str(row)].value
-
-    if sheet["B"+str(row)].value == "ATM":
-        return "ATM"
-
-    for category in list(descriptions.items()):
+# Takes in type and description of charge and returns a tri tuple of info
+def description_and_amount(Type, Description, Amount):
+    for category in list(categories.items()):
         for subcategory in list(category[1].items()):
             for code in subcategory[1]:
-                if code.lower() in storecode.lower():
-
-                    # update by-month totals
-                    bymonth_totals[category[0][0].upper() + category[0][1:]] \
-                    += amounter(row)
-
-                    record_bymonthly_totals()
-
-                    # update subcategory total
-                    totals[category[0]][subcategory[0]] += amounter(row)
-
-                    # update category total
-                    totals[category[0]]["Total"] += amounter(row)
+                if code.lower() in Description.lower() or code.lower() in Type.lower():
 
                     # return category, subcategory and charge description
-                    return [category[0], subcategory[0], storecode]
+                    return [category[0], subcategory[0], code]
 
-    record_bymonthly_totals()
+    return ["miscellaneous", "Miscellaneous", code]
 
-    # update by-month totals
-    bymonth_totals["Miscellaneous"] += amounter(row)
-
-    # update category total
-    totals["miscellaneous"]["Total"] += amounter(row)
-
-    # updates miscellaneous category
-    totals["miscellaneous"]["Miscellaneous"] += amounter(row)
-    return ["miscellaneous", "Miscellaneous", storecode]
-
-
-# Returns amount given or receieved (pay is pos, get is neg) #
-def amounter(row):
-    withdrawal = sheet["E"+str(row)].value
-    if isinstance(withdrawal, float) or isinstance(withdrawal, int):
-        return withdrawal
+# Combines withdrawal and deposit columns into one 'amount' column
+def amount(df):
+    if not math.isnan(df[4]):
+        return -df[4]
+    if not math.isnan(df[5]):
+        return df[5]
     else:
-        return -sheet["F"+str(row)].value
+        return 0
+
+# Create cumulative lineplot of spending by category over time
+def cat_plot(cats, df):
+    new_df = df.copy()
+    
+    if isinstance(cats, str):
+        cats = [cats]
+    if isinstance(cats, list):
+        new_df = new_df[new_df['Category'].isin(cats)]
+        new_df['Amount'] = new_df['Amount'].apply(lambda x: -x)
+
+        # Create a pivot table for cumulative sum of amount by category and date
+        pivot_table = new_df.pivot_table(index='Date', columns='Category', values='Amount', aggfunc='sum').fillna(0)
+        cumulative_df = pivot_table.cumsum()
+
+        # Plotting
+        cumulative_df.plot(kind='line', linestyle='-', figsize=(10, 6))
+        plt.title('Cumulative Amount Spent on Each Category Over Time')
+        plt.xlabel('Date')
+        plt.ylabel('Cumulative Spending')
+        plt.legend(title='Category')
+        plt.grid(True)
+        plt.show()
+    else:
+        print("Input must be a list.")
 
 
-# Returns remaining balance #
-def balancer(row):
-    return sheet["G"+str(row)].value
 
 
+#### Create Spreadsheet ####
 
-
-
-
-
-
-"""
-######## User input: ########
-Accesses spreadsheet
-Changes name of original sheet
-Makes new spreadsheet
-Confirms columns
-Sets start and end dates
-"""
-
-"""
 # Accesses spreadsheet #
-accessed = False
-while accessed == False:
+working = True
+while working:
     try:
         print("What is the filepath for your sheet?")
         filepath = input() + ".xlsx"
         wb = openpyxl.load_workbook(filepath)
         sheet = wb.active
-        accessed = True
+        working = False
     except FileNotFoundError as e:
         print("Sorry, that file could not be located. Please try again")
-"""
-# original_sheet_name = "PracticeCheckingSheet.xlsx"
-# wb = openpyxl.load_workbook(original_sheet_name)
-# sheet = wb.active
+
+original_sheet_name = "PracticeCheckingSheet.xlsx"
+wb = openpyxl.load_workbook(original_sheet_name)
+sheet = wb.active
 
 # Changes name of original sheet #
-#print("Would you like to rename this sheet from "+str(wb.sheetnames[0])+"?")
-#print("Provide the new name or press enter to keep original name")
-#rename = input()
-#if len(rename)>0:
-#   sheet.title=rename
+print("Would you like to rename this sheet from {}? (Y/N))".format(wb.sheetnames[0]))
+rename_bool = input()
+if 'y' in rename_bool.lower():
+    print("Provide the new name or press enter to keep original name")
+    rename = input()
+    if len(rename)>0:
+        sheet.title=rename
 
-# Makes new spreadsheet
-# print("What would you like to call your new sheet?")
-# newsheet_name = input()
-# wb.create_sheet(newsheet_name)
-# wb.save(original_sheet_name)
-# newsheet = wb[newsheet_name]
+
 
 
 #### User enters start and end dates ####
-startday = 0
-startmonth = 0
-startyear = 0
-endyear = 0
-endmonth = 0
-endday = 0
-
+startday, startmonth, startyear = 0, 0, 0
+endyear, endmonth, endday = 0, 0, 0
 
 # Start date info
 print("Enter the starting date for your budget:")
@@ -336,16 +167,8 @@ while startday == 0:
     else:
         print("Sorry! Your day is not in the range of the days in the month. Please try again.")
 
-
-first_fiscal = str(startyear)+"-"+str(startmonth)+"-"+str(startday)
-
-
-
-
-
 # End date info
 print("Enter the ending date for your budget:")
-
 print("Do you want to see your spending up to the present? (Y/N)")
 answer = input()
 if "y" in answer.lower():
@@ -385,11 +208,8 @@ else:
         else:
             print("Sorry! Your day is not in the range of the days in the month. Please try again.")
 
-    last_fiscal = str(endyear)+"-"+str(endmonth)+"/"+str(endday)
-
-
-
-
+    last_fiscal = "{}-{}-{}".format(endyear, endmonth, endday)
+first_fiscal = "{}-{}-{}".format(startyear, startmonth, startday)
 
 # The range of dates selected by the user
 budget_days = pd.date_range(start=first_fiscal, end=last_fiscal)
@@ -403,10 +223,77 @@ for day in budget_days:
 
 
 
+#### Spreadsheet transformations ####
+
+# Crop the rows according to desired date range
+df['Date'] = df['Date'].apply(dater)
+
+# Combine Deposit and Withdrawal columns into one Amount column
+df['Amount'] = df.apply(amount, axis=1)
+
+# Select date range given earlier
+df = df[df['Date'].apply(date_range)]
+
+# Add columns that describe charge (Category, Subcategory, Code)
+df = df.assign(description = df.apply(lambda x: description_and_amount(x["Type"], x["Description"], x["Amount"]), axis=1))
+charge_info = pd.DataFrame(df.description.tolist(), index=df.index, columns=['Category', 'Subcategory', 'Code'])
+df = pd.concat([df, charge_info], axis=1)
+
+# Rename columns
+df = df[['Date', 'Category', 'Subcategory', 'Code', 'Amount', 'RunningBalance']]
+df = df.reset_index().iloc[:, 1:]
+
+# Create Year, Month and Day columns
+df = df.assign(Year=df['Date'].apply(lambda x: int(str(x)[:4])),
+               Month=df['Date'].apply(lambda x: int(str(x)[5:7])),
+               Day=df['Date'].apply(lambda x: int(str(x)[8:10])))
+
+# Create spending table grouped by month
+totals = df.drop(columns=['Date', 'Code', 'RunningBalance', 'Day'])
+totals = totals.groupby(['Year', 'Month', 'Category', 'Subcategory']).sum()
+totals = totals.reset_index(level=2, drop=True).reset_index(level=1, drop=False)
+totals = totals.assign(Month=totals['Month'].apply(lambda x: calendar.month_name[x]))
+totals = totals.pivot(columns='Month').fillna(0)
+totals = totals.assign(Total=totals.sum(axis=1))
+
+# Export DataFrame to Excel
+print("What would you like to call your new sheet?")
+newsheet_name = input()
+wb.create_sheet(newsheet_name)
+wb.save(original_sheet_name)
+newsheet = wb[newsheet_name]
+totals.to_excel()
+
+# Create an ExcelWriter object
+with pd.ExcelWriter(filepath, engine='xlsxwriter') as writer:
+
+    # Write the DataFrame to a sheet named 'Sheet1'
+    totals.to_excel(writer, sheet_name=newsheet_name, index=True)
 
 
 
 
+#### Plotting ####
 
+# Bar Plot #
+plot_df = totals.copy()[['Total']]
+plot_df['Total'] = plot_df['Total'].apply(lambda x: -x)
+plot_df.plot(kind='bar', legend=None, figsize=(10, 6))
+plt.title('Total Amount Spent on Each Category')
+plt.xlabel('Category')
+plt.ylabel('Total Amount')
+plt.xticks(rotation=45, ha='right')
+plt.show()
+
+# Line Plot #
+print("Would you like to visualize your spending over time? (Y/N)")
+vis = input()
+if 'y' in vis.lower():
+    visualize = True
+    while visdone:
+        print("Enter the categories you want to see.")
+        vistype = input().strip('[]')
+        viscats = [word.strip() for word in vistype.split(',')]
+        cat_plot(viscats, df)
 
 
