@@ -16,6 +16,8 @@ import csv
 from csv import DictReader
 
 
+
+
 #### Functions ####
 
 # Returns date in MM-DD-YYYY format
@@ -77,15 +79,18 @@ def cat_plot(cats, df):
         print("Input must be a list.")
 
 
+
+
 #### Loading Stored Data ####
 
-print("To begin, enter the name of your spreadsheet")
-sheet_name = input()
-if "." not in sheet_name:
-    sheet_name = f"{sheet_name}.xlsx"
+# User enters name of excel workbook
+print("To begin, enter the name of your excel workbook.")
+wb_name = input()
+if "." not in wb_name:
+    wb_name = f"{wb_name}.xlsx"
 
 # Read in spending spreadsheet
-sheetpath = Path('Data') / sheet_name
+sheetpath = Path('Data') / wb_name
 df = pd.read_excel(sheetpath)
 
 # Read in category descriptions of charges
@@ -95,99 +100,96 @@ categories = json.loads(filepath.read_text())
 
 
 
-
-
 #### User Enters Start and End Dates ####
 
 startday, startmonth, startyear = 0, 0, 0
 endyear, endmonth, endday = 0, 0, 0
 
-# # Start date info
-# print("Enter the starting date for your budget:")
+# Start date info
+print("Enter the starting date for your budget:")
 
-# # Collect starting year
-# while startyear == 0:
-#     print("Starting Year (YYYY)")
-#     year = input().strip()
-#     if len(year) == 2:
-#         startyear = "20" + year
-#     elif len(year) == 4:
-#         startyear = year
-#     else:
-#         print("Sorry! Your date was not in (YYYY) format. Please try again.")
+# Collect starting year
+while startyear == 0:
+    print("Starting Year (YYYY)")
+    year = input().strip()
+    if len(year) == 2:
+        startyear = "20" + year
+    elif len(year) == 4:
+        startyear = year
+    else:
+        print("Sorry! Your date was not in (YYYY) format. Please try again.")
 
-# # Collect starting month
-# while startmonth==0:
-#     print("Starting Month (MM)")
-#     month = input().strip()
-#     if len(month) == 1:
-#         month = "0" + month
-#     if 1<=int(month)<=12:
-#         startmonth = month
+# Collect starting month
+while startmonth==0:
+    print("Starting Month (MM)")
+    month = input().strip()
+    if len(month) == 1:
+        month = "0" + month
+    if 1<=int(month)<=12:
+        startmonth = month
 
-#     else:
-#         print("Sorry! "+month+" isn\"t a valid month. Please try again.")
+    else:
+        print("Sorry! "+month+" isn\"t a valid month. Please try again.")
 
-# # Collect starting day
-# while startday == 0:
-#     print("Starting Day (DD)")
-#     day = input().strip()
-#     if len(day) == 1:
-#         day = "0" + day
-#     if 1 <= int(day) <= 31:
-#         startday = day
-#     else:
-#         print("Sorry! Your day is not in the range of the days in the month. Please try again.")
+# Collect starting day
+while startday == 0:
+    print("Starting Day (DD)")
+    day = input().strip()
+    if len(day) == 1:
+        day = "0" + day
+    if 1 <= int(day) <= 31:
+        startday = day
+    else:
+        print("Sorry! Your day is not in the range of the days in the month. Please try again.")
 
-# # End date info
-# print("Enter the ending date for your budget:")
-# print("Do you want to see your spending up to the present? (Y/N)")
-# answer = input()
-# if "y" in answer.lower():
-#     last_fiscal = str(date.today())
-# else:
+# End date info
+print("Enter the ending date for your budget:")
+print("Do you want to see your spending up to the present? (Y/N)")
+answer = input()
+if "y" in answer.lower():
+    last_fiscal = str(date.today())
+else:
 
-#     # Collect ending year
-#     while endyear == 0:
-#         print("Final Year (YYYY)")
-#         year = input().strip()
-#         if len(year) == 2:
-#             endyear = "20" + year
-#         elif len(year) == 4:
-#             endyear = year
-#         else:
-#             print("Sorry! Your date was not in (YYYY) format. Please try again.")
+    # Collect ending year
+    while endyear == 0:
+        print("Final Year (YYYY)")
+        year = input().strip()
+        if len(year) == 2:
+            endyear = "20" + year
+        elif len(year) == 4:
+            endyear = year
+        else:
+            print("Sorry! Your date was not in (YYYY) format. Please try again.")
 
-#     # Collect ending month
-#     while endmonth==0:
-#         print("Final Month (MM)")
-#         month = input().strip()
-#         if len(month) == 1:
-#             month = "0" + month
-#         if 1<=int(month)<=12:
-#             endmonth = month
-#         else:
-#             print("Sorry! "+month+" isn\"t a valid month. Please try again.")
+    # Collect ending month
+    while endmonth==0:
+        print("Final Month (MM)")
+        month = input().strip()
+        if len(month) == 1:
+            month = "0" + month
+        if 1<=int(month)<=12:
+            endmonth = month
+        else:
+            print("Sorry! "+month+" isn\"t a valid month. Please try again.")
 
-#     # Collect ending day
-#     while endday == 0:
-#         print("Final Day (DD)")
-#         day = input().strip()
-#         if len(day) == 1:
-#             day = "0" + day
-#         if 1 <= int(day) <= 31:
-#             endday = day
-#         else:
-#             print("Sorry! Your day is not in the range of the days in the month. Please try again.")
+    # Collect ending day
+    while endday == 0:
+        print("Final Day (DD)")
+        day = input().strip()
+        if len(day) == 1:
+            day = "0" + day
+        if 1 <= int(day) <= 31:
+            endday = day
+        else:
+            print("Sorry! Your day is not in the range of the days in the month. Please try again.")
 
-    # last_fiscal = "{}-{}-{}".format(endyear, endmonth, endday)
-# first_fiscal = "{}-{}-{}".format(startyear, startmonth, startday)
-
-first_fiscal = "2023-01-01"
-last_fiscal = "2023-12-31"
+    last_fiscal = "{}-{}-{}".format(endyear, endmonth, endday)
+first_fiscal = "{}-{}-{}".format(startyear, startmonth, startday)
 
 # The range of dates selected by the user
 budget_days = pd.date_range(start=first_fiscal, end=last_fiscal)
+
+
 
 
 #### Spreadsheet transformations ####
@@ -242,40 +244,34 @@ totals = empty_df.combine_first(totals).fillna(0)
 
 #### Create Spreadsheet ####
 
-# Changes name of original sheet #
-# print("Would you like to rename this sheet from {}? (Y/N))".format(wb.sheetnames[0]))
-# answer = input()
-# if 'y' in answer.lower():
-    # print("Provide the new name or press enter to keep original name")
-    # rename = input()
-    # if len(rename)>0:
-    #     sheet.title=rename
-
 # Load the existing Excel workbook
 workbook = openpyxl.load_workbook(sheetpath)
 
 # Get the old sheet
-old_sheet = workbook[workbook.sheetnames[0]]
+oldsheet_name = workbook.sheetnames[0]
+oldsheet = workbook[oldsheet_name]
 
-# Rename the old sheet to the new name
-old_sheet.title = 'original'
+# Changes name of original sheet #
+print(f"Would you like to rename this sheet from '{oldsheet_name}'? (Y/N))")
+answer = input()
+if 'y' in answer.lower():
+    print("Provide the new name or press enter to keep original name")
+    sheet_newname = input()
+    if len(rename)>0:
+        oldsheet.title = sheet_newname
 
 # Save the changes to the workbook
 workbook.save(sheetpath)
 
-
-
-
 # Name new excel sheet according to user input
-# print("What would you like to call your new sheet?")
-newsheet_name = '2023'
+print("What would you like to call your new sheet?")
+newsheet_name = input()
 
 # Open the existing Excel file
 with pd.ExcelWriter(sheetpath, engine='openpyxl', mode='a', if_sheet_exists='new') as writer:
 
     # Write the DataFrame to a new sheet
     totals.to_excel(writer, sheet_name=newsheet_name, index=True)
-
 
 
 
