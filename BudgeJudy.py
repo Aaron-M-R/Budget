@@ -311,6 +311,8 @@ if 'y' in answer.lower():
             viscats = list(df['Category'].unique())
         else:
             viscats = [word.strip() for word in vistype.strip('[]').split(',')]
+
+        print("categories to plot: {}".format(viscats))
         cat_plot(viscats, df)
         print("Would you like to plot again? (Y/N)")
         answer = input()

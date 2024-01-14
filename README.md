@@ -9,4 +9,10 @@ First, make sure you have cloned this respository (titled Budget). Then, add a s
 
 
 ## Use
-Enter the name of your excel workbook, pick the range of dates you want to analyze and enter their day, month and year separately. Then, enter what you want the title of your new sheet you to be. The program will then update the excel workbook by making opening a new sheet and filling it with you spending per month on each category. The program then creates a bar plot of total spending on each category and subcategory. Finally, you will be asked if you want to visualize your spending over time, where the program can create a lineplot showing the progression of your spending per month on some or all of the categories of interest. 
+Enter the name of your excel workbook, 
+
+<!-- <center><img src=images/3_musketeers_illustration.png width=350>(<a href="https://en.wikipedia.org/wiki/The_Three_Musketeers">source</a>)</center> -->
+
+<img src="images/step_1" width=350></img>
+
+pick the range of dates you want to analyze and enter their day, month and year separately. Then, enter what you want the title of your new sheet you to be. The program will then update the excel workbook by making opening a new sheet and filling it with you spending per month on each category. The program then creates a bar plot of total spending on each category and subcategory. Finally, you will be asked if you want to visualize your spending over time, where the program can create a lineplot showing the progression of your spending per month on some or all of the categories of interest. 
