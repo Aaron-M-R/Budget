@@ -5,13 +5,15 @@ After having a bank account for quite some time, I decided to keep better track 
 
 
 ## Instructions
-First, make sure you have cloned this respository (titled Budget). Then, add a spreadsheet of your spending as an excel workbook to this repo. The columns of the spreadsheet should be in the following order: date, status, type, check number, description, withdrawal, deposit, running balance. You should now be able to either run the program (titled BudgeJudy.py) in a terminal or open and run the jupyter notebook (titled BudgetRunner.ipynb) remotely on your machine. Restarting the kernel and running all of the cells in the notebook will first run the python program, and then provide some additional visualizations.
+First, make sure you have cloned this respository (titled Budget). Then, add a spreadsheet of your spending as an excel workbook to this repo. The columns of the spreadsheet should be in the following order: date, status, type, check number, description, withdrawal, deposit, running balance. 
+
+<img src="Images/original_workbook" width=350></img>
+
+You should now be able to either run the program (titled BudgeJudy.py) in a terminal or open and run the jupyter notebook (titled BudgetRunner.ipynb) remotely on your machine. Restarting the kernel and running all of the cells in the notebook will first run the python program, and then provide some additional visualizations.
 
 
 ## Use
-Enter the name of your excel workbook, 
-
-<!-- <center><img src=images/3_musketeers_illustration.png width=350>(<a href="https://en.wikipedia.org/wiki/The_Three_Musketeers">source</a>)</center> -->
+Enter the name of your excel workbook,
 
 <img src="Images/step_1" width=350></img>
 
@@ -26,7 +28,7 @@ Then, enter what you want the title of your new sheet you to be.
 
 The program will then update the excel workbook by making opening a new sheet and filling it with you spending per month on each category. 
 
-<!-- <img src="Images/name" width=350></img> -->
+<img src="Images/summary_spending" width=350></img>
 
 The program then creates a bar plot of total spending on each category and subcategory. 
 
