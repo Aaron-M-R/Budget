@@ -5,7 +5,7 @@ After having a bank account for quite some time, I decided to keep better track 
 
 
 ## Instructions
-First, make sure you have cloned this respository (titled Budget). Then, add a spreadsheet of your spending as an excel workbook to this repo. The columns of the spreadsheet should be in the following order: date, status, type, check number, description, withdrawal, deposit, running balance. 
+First, make sure you have cloned this respository (titled Budget). Then, add a spreadsheet of your spending as an excel workbook to the 'Data' folder in this repository. The columns of the spreadsheet should be in the following order: date, status, type, check number, description, withdrawal, deposit, running balance. 
 
 <img src="Images/original_workbook" width=350></img>
 
