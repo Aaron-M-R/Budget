@@ -1,10 +1,10 @@
 # Budget
  
-## Purpose
+### Purpose
 After having a bank account for quite some time, I decided to keep better track of my spending. While many people either manually look at every charge in their card's history or don't look at all, I wanted to automatically sort my spending and sum the charges based on category. I then created this project in order to do just that. I focused mainly on finding a way to see how much money I spent on food or on transportation and also keep track of my income. I also wanted to easily visualize my spending over time. This program can do all of that.
 
 
-## Instructions
+### Instructions
 First, make sure you have cloned this respository (titled Budget). Then, add a spreadsheet of your spending as an excel workbook to the 'Data' folder in this repository. The columns of the spreadsheet should be in the following order: date, status, type, check number, description, withdrawal, deposit, running balance. 
 
 <img src="Images/original_workbook.png" width=450>
@@ -12,7 +12,7 @@ First, make sure you have cloned this respository (titled Budget). Then, add a s
 You should now be able to either run the program (titled BudgeJudy.py) in a terminal or open and run the jupyter notebook (titled BudgetRunner.ipynb) remotely on your machine. Restarting the kernel and running all of the cells in the notebook will first run the python program, and then provide some additional visualizations.
 
 
-## Use
+### Use
 Enter the name of your excel workbook,
 
 <img src="Images/step_1.png" width=450>
